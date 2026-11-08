@@ -1,68 +1,89 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 
-export default function Groups({ groups, addGroup, tasks }) {
-  const [newGroupName, setNewGroupName] = useState('');
-    
-      // Available pastel colors for new groups
-        const colors = ['bg-pastel-blue', 'bg-pastel-pink', 'bg-pastel-green', 'bg-pastel-yellow'];
-          const [selectedColor, setSelectedColor] = useState(colors[0]);
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import useTaskStore from "../store/taskStore";
 
-            const handleAdd = (e) => {
-                e.preventDefault();
-                    if (newGroupName.trim()) {
-                          addGroup(newGroupName, selectedColor);
-                                setNewGroupName('');
-                                    }
-                                      };
+function Groups() {
+  const [groupName, setGroupName] = useState("");
 
-                                        return (
-                                            <div className="space-y-6">
-                                                  <header className="text-center mb-8">
-                                                          <h1 className="text-3xl font-bold text-gray-800">Task Groups</h1>
-                                                                </header>
+  const groups = useTaskStore((state) => state.groups);
+  const tasks = useTaskStore((state) => state.tasks);
+  const addGroup = useTaskStore((state) => state.addGroup);
+  const deleteGroup = useTaskStore((state) => state.deleteGroup);
 
-                                                                      {/* Add Group Form */}
-                                                                            <form onSubmit={handleAdd} className="bg-white p-4 rounded-apple shadow-soft flex flex-col gap-4">
-                                                                                    <div className="flex flex-col sm:flex-row gap-4">
-                                                                                              <input 
-                                                                                                          type="text" 
-                                                                                                                      placeholder="New group name..." 
-                                                                                                                                  className="flex-grow p-3 rounded-xl bg-pastel-bg outline-none focus:ring-2 focus:ring-pastel-blue"
-                                                                                                                                              value={newGroupName}
-                                                                                                                                                          onChange={(e) => setNewGroupName(e.target.value)}
-                                                                                                                                                                    />
-                                                                                                                                                                              <div className="flex gap-2 items-center justify-center">
-                                                                                                                                                                                          {colors.map(c => (
-                                                                                                                                                                                                        <button 
-                                                                                                                                                                                                                        key={c} type="button" onClick={() => setSelectedColor(c)}
-                                                                                                                                                                                                                                        className={`w-8 h-8 rounded-full ${c} border-2 ${selectedColor === c ? 'border-gray-400' : 'border-transparent'}`}
-                                                                                                                                                                                                                                                      />
-                                                                                                                                                                                                                                                                  ))}
-                                                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                                                                            <button type="submit" className="bg-pastel-green text-gray-800 font-semibold px-6 py-3 rounded-xl hover:bg-green-200 transition-colors w-full sm:w-auto self-end">
-                                                                                                                                                                                                                                                                                                      Create Group
-                                                                                                                                                                                                                                                                                                              </button>
-                                                                                                                                                                                                                                                                                                                    </form>
+  const handleAddGroup = (e) => {
+    e.preventDefault();
 
-                                                                                                                                                                                                                                                                                                                          {/* Groups Grid */}
-                                                                                                                                                                                                                                                                                                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                                                                                                                                                                                                                                                                                                        {groups.map(group => {
-                                                                                                                                                                                                                                                                                                                                                  const taskCount = tasks.filter(t => t.groupId === group.id).length;
-                                                                                                                                                                                                                                                                                                                                                            return (
-                                                                                                                                                                                                                                                                                                                                                                        <Link 
-                                                                                                                                                                                                                                                                                                                                                                                      key={group.id} 
-                                                                                                                                                                                                                                                                                                                                                                                                    to={`/groups/${group.id}`}
-                                                                                                                                                                                                                                                                                                                                                                                                                  className={`${group.color} p-6 rounded-apple shadow-soft hover:shadow-md transition-shadow flex flex-col items-start`}
-                                                                                                                                                                                                                                                                                                                                                                                                                              >
-                                                                                                                                                                                                                                                                                                                                                                                                                                            <h2 className="text-xl font-bold text-gray-800 mb-2">{group.name}</h2>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                          <p className="text-gray-600 font-medium">{taskCount} {taskCount === 1 ? 'task' : 'tasks'}</p>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <span className="mt-4 text-sm font-semibold text-gray-700 underline">View Tasks →</span>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </Link>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              )
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      })}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  );
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  }
+    if (!groupName.trim()) return;
+
+    addGroup(groupName.trim());
+    setGroupName("");
+  };
+
+  return (
+    <main className="min-h-screen p-6">
+      <div className="mx-auto max-w-5xl">
+        <h1 className="mb-2 text-3xl font-bold">Task Groups</h1>
+        <p className="mb-6 text-gray-500">
+          Create and organize your tasks into groups.
+        </p>
+
+        <form onSubmit={handleAddGroup} className="mb-8 flex flex-col gap-3 sm:flex-row">
+          <input
+            value={groupName}
+            onChange={(e) => setGroupName(e.target.value)}
+            placeholder="Enter group name..."
+            className="min-w-0 flex-1 rounded-xl border p-3"
+          />
+
+          <button className="rounded-xl bg-purple-600 px-5 py-3 text-white">
+            Create Group
+          </button>
+        </form>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {groups.map((group) => {
+            const groupTasks = tasks.filter(
+              (task) => task.groupId === group.id
+            );
+
+            return (
+              <div
+                key={group.id}
+                className="rounded-2xl bg-white p-5 shadow-soft"
+              >
+                <h2 className="mb-2 text-xl font-bold">{group.name}</h2>
+
+                <p className="mb-4 text-sm text-gray-500">
+                  {groupTasks.length} task(s)
+                </p>
+
+                <div className="flex flex-wrap gap-2">
+                  <Link
+                    to={`/groups/${group.id}`}
+                    className="rounded-lg bg-purple-100 px-4 py-2"
+                  >
+                    View Tasks
+                  </Link>
+
+                  <button
+                    onClick={() => {
+                      if (window.confirm("Delete this group and all its tasks?")) {
+                        deleteGroup(group.id);
+                      }
+                    }}
+                    className="rounded-lg bg-red-100 px-4 py-2"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </main>
+  );
+}
+
+export default Groups;

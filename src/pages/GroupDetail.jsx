@@ -1,64 +1,114 @@
-import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
 
-export default function GroupDetail({ tasks, toggleTask, deleteTask, addTask, groups }) {
+import { useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import useTaskStore from "../store/taskStore";
+
+function GroupDetail() {
   const { groupId } = useParams();
-    const [newTask, setNewTask] = useState('');
-      
-        const currentGroup = groups.find(g => g.id === groupId);
-          const groupTasks = tasks.filter(t => t.groupId === groupId);
+  const [taskText, setTaskText] = useState("");
 
-            if (!currentGroup) return <div className="text-center mt-10">Group not found. <Link to="/groups" className="text-blue-500">Go back</Link></div>;
+  const groups = useTaskStore((state) => state.groups);
+  const tasks = useTaskStore((state) => state.tasks);
+  const addTask = useTaskStore((state) => state.addTask);
+  const toggleTask = useTaskStore((state) => state.toggleTask);
+  const deleteTask = useTaskStore((state) => state.deleteTask);
+  const clearGroupTasks = useTaskStore((state) => state.clearGroupTasks);
 
-              const handleSubmit = (e) => {
-                  e.preventDefault();
-                      if (newTask.trim()) {
-                            addTask(newTask, groupId);
-                                  setNewTask('');
-                                      }
-                                        };
+  const group = groups.find((item) => item.id === groupId);
+  const groupTasks = tasks.filter((task) => task.groupId === groupId);
 
-                                          return (
-                                              <div className="space-y-6">
-                                                    <div className="flex items-center gap-4 mb-2">
-                                                            <Link to="/groups" className="text-gray-500 hover:text-gray-800">&larr; Back</Link>
-                                                                    <h1 className={`text-2xl font-bold text-gray-800 px-4 py-2 rounded-xl ${currentGroup.color}`}>{currentGroup.name}</h1>
-                                                                          </div>
+  const handleAddTask = (e) => {
+    e.preventDefault();
 
-                                                                                <form onSubmit={handleSubmit} className="bg-white p-2 rounded-apple shadow-soft flex gap-2">
-                                                                                        <input 
-                                                                                                  type="text" 
-                                                                                                            placeholder={`Add task to ${currentGroup.name}...`} 
-                                                                                                                      className="flex-grow p-3 rounded-xl bg-pastel-bg outline-none focus:ring-2 focus:ring-pastel-blue"
-                                                                                                                                value={newTask}
-                                                                                                                                          onChange={(e) => setNewTask(e.target.value)}
-                                                                                                                                                  />
-                                                                                                                                                          <button type="submit" className="bg-gray-800 text-white font-semibold px-6 py-3 rounded-xl hover:bg-gray-700 transition-colors">
-                                                                                                                                                                    Add
-                                                                                                                                                                            </button>
-                                                                                                                                                                                  </form>
+    if (!taskText.trim()) return;
 
-                                                                                                                                                                                        <div className="space-y-3">
-                                                                                                                                                                                                {groupTasks.map(task => (
-                                                                                                                                                                                                          <div key={task.id} className={`bg-white p-4 rounded-apple shadow-soft flex items-center justify-between ${task.completed ? 'opacity-60' : ''}`}>
-                                                                                                                                                                                                                       <div className="flex items-center gap-4">
-                                                                                                                                                                                                                                       <input 
-                                                                                                                                                                                                                                                         type="checkbox" 
-                                                                                                                                                                                                                                                                           checked={task.completed} 
-                                                                                                                                                                                                                                                                                             onChange={() => toggleTask(task.id)}
-                                                                                                                                                                                                                                                                                                               className="w-5 h-5 cursor-pointer accent-gray-600"
-                                                                                                                                                                                                                                                                                                                               />
-                                                                                                                                                                                                                                                                                                                                               <p className={`text-gray-800 font-medium ${task.completed ? 'line-through text-gray-400' : ''}`}>{task.text}</p>
-                                                                                                                                                                                                                                                                                                                                                             </div>
-                                                                                                                                                                                                                                                                                                                                                                           <button onClick={() => deleteTask(task.id)} className="text-red-400 hover:text-red-600 p-2">
-                                                                                                                                                                                                                                                                                                                                                                                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                                                                                                                                                                                                                                                                                                                                                                             <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                                                                                                                                                                                                                                                                                                                                                                                                                             </svg>
-                                                                                                                                                                                                                                                                                                                                                                                                                                           </button>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                     </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                             ))}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                     {groupTasks.length === 0 && <p className="text-center text-gray-400 mt-4">No tasks in this group yet.</p>}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                           </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                               </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 );
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 }
+    addTask(taskText.trim(), groupId);
+    setTaskText("");
+  };
+
+  if (!group) {
+    return (
+      <main className="p-6">
+        <h1 className="text-2xl font-bold">Group not found.</h1>
+        <Link to="/groups" className="text-purple-600 underline">
+          Back to Groups
+        </Link>
+      </main>
+    );
+  }
+
+  return (
+    <main className="min-h-screen p-6">
+      <div className="mx-auto max-w-4xl">
+        <Link to="/groups" className="text-purple-600 underline">
+          ← Back to Groups
+        </Link>
+
+        <h1 className="my-5 text-3xl font-bold">{group.name}</h1>
+
+        <form onSubmit={handleAddTask} className="mb-6 flex flex-col gap-3 sm:flex-row">
+          <input
+            value={taskText}
+            onChange={(e) => setTaskText(e.target.value)}
+            placeholder="Enter a new task..."
+            className="min-w-0 flex-1 rounded-xl border p-3"
+          />
+
+          <button className="rounded-xl bg-purple-600 px-5 py-3 text-white">
+            Add Task
+          </button>
+        </form>
+
+        <div className="mb-5 flex items-center justify-between">
+          <h2 className="text-xl font-bold">Tasks</h2>
+
+          <button
+            onClick={() => {
+              if (window.confirm("Clear all tasks in this group?")) {
+                clearGroupTasks(groupId);
+              }
+            }}
+            className="rounded-lg bg-red-100 px-3 py-2 text-sm"
+          >
+            Clear Group Tasks
+          </button>
+        </div>
+
+        {groupTasks.length === 0 ? (
+          <p className="text-gray-500">No tasks in this group yet.</p>
+        ) : (
+          <div className="space-y-3">
+            {groupTasks.map((task) => (
+              <div
+                key={task.id}
+                className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-white p-4 shadow-soft"
+              >
+                <span className={task.completed ? "line-through text-gray-400" : ""}>
+                  {task.text}
+                </span>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => toggleTask(task.id)}
+                    className="rounded-lg bg-green-100 px-3 py-2"
+                  >
+                    {task.completed ? "Not Done" : "Done"}
+                  </button>
+
+                  <button
+                    onClick={() => deleteTask(task.id)}
+                    className="rounded-lg bg-red-100 px-3 py-2"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </main>
+  );
+}
+
+export default GroupDetail;

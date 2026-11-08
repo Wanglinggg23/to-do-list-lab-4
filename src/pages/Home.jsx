@@ -1,73 +1,160 @@
-import React, { useState } from 'react';
+import { useState } from "react";
+import useTaskStore from "../store/taskStore";
+import UserInfoCard from "../components/UserInfoCard";
 
-export default function Home({ tasks, toggleTask, deleteTask, addTask, groups }) {
-  const [newTask, setNewTask] = useState('');
-    const [selectedGroup, setSelectedGroup] = useState(groups[0]?.id || '');
+function Home() {
+  const [taskText, setTaskText] = useState("");
+  const [selectedGroup, setSelectedGroup] = useState("1");
 
-      const handleSubmit = (e) => {
-          e.preventDefault();
-              if (newTask.trim() && selectedGroup) {
-                    addTask(newTask, selectedGroup);
-                          setNewTask('');
-                              }
-                                };
+  const groups = useTaskStore((state) => state.groups);
+  const tasks = useTaskStore((state) => state.tasks);
+  const addTask = useTaskStore((state) => state.addTask);
+  const toggleTask = useTaskStore((state) => state.toggleTask);
+  const deleteTask = useTaskStore((state) => state.deleteTask);
 
-                                  return (
-                                      <div className="space-y-6">
-                                            <header className="text-center mb-8">
-                                                    <h1 className="text-3xl font-bold text-gray-800">My Tasks</h1>
-                                                            <p className="text-gray-500 mt-2">You have {tasks.filter(t => !t.completed).length} tasks left to do.</p>
-                                                                  </header>
+  const completed = tasks.filter((task) => task.completed).length;
+  const pending = tasks.length - completed;
 
-                                                                        {/* Add Task Form */}
-                                                                              <form onSubmit={handleSubmit} className="bg-white p-2 rounded-apple shadow-soft flex flex-col sm:flex-row gap-2">
-                                                                                      <input 
-                                                                                                type="text" 
-                                                                                                          placeholder="Add a new task..." 
-                                                                                                                    className="flex-grow p-3 rounded-xl bg-pastel-bg outline-none focus:ring-2 focus:ring-pastel-blue transition-all"
-                                                                                                                              value={newTask}
-                                                                                                                                        onChange={(e) => setNewTask(e.target.value)}
-                                                                                                                                                />
-                                                                                                                                                        <select 
-                                                                                                                                                                  className="p-3 rounded-xl bg-pastel-bg outline-none text-gray-600 cursor-pointer"
-                                                                                                                                                                            value={selectedGroup}
-                                                                                                                                                                                      onChange={(e) => setSelectedGroup(e.target.value)}
-                                                                                                                                                                                              >
-                                                                                                                                                                                                        {groups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
-                                                                                                                                                                                                                </select>
-                                                                                                                                                                                                                        <button type="submit" className="bg-pastel-blue text-gray-800 font-semibold px-6 py-3 rounded-xl hover:bg-blue-200 transition-colors">
-                                                                                                                                                                                                                                  Add
-                                                                                                                                                                                                                                          </button>
-                                                                                                                                                                                                                                                </form>
+  const handleAddTask = (e) => {
+    e.preventDefault();
 
-                                                                                                                                                                                                                                                      {/* Task List */}
-                                                                                                                                                                                                                                                            <div className="space-y-3">
-                                                                                                                                                                                                                                                                    {tasks.map(task => {
-                                                                                                                                                                                                                                                                              const group = groups.find(g => g.id === task.groupId);
-                                                                                                                                                                                                                                                                                        return (
-                                                                                                                                                                                                                                                                                                    <div key={task.id} className={`bg-white p-4 rounded-apple shadow-soft flex items-center justify-between transition-all ${task.completed ? 'opacity-60' : ''}`}>
-                                                                                                                                                                                                                                                                                                                  <div className="flex items-center gap-4">
-                                                                                                                                                                                                                                                                                                                                  <input 
-                                                                                                                                                                                                                                                                                                                                                    type="checkbox" 
-                                                                                                                                                                                                                                                                                                                                                                      checked={task.completed} 
-                                                                                                                                                                                                                                                                                                                                                                                        onChange={() => toggleTask(task.id)}
-                                                                                                                                                                                                                                                                                                                                                                                                          className="w-5 h-5 cursor-pointer accent-gray-600 rounded-full"
-                                                                                                                                                                                                                                                                                                                                                                                                                          />
-                                                                                                                                                                                                                                                                                                                                                                                                                                          <div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                            <p className={`text-gray-800 font-medium ${task.completed ? 'line-through text-gray-400' : ''}`}>{task.text}</p>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                              {group && <span className={`text-xs px-2 py-1 rounded-md mt-1 inline-block ${group.color} text-gray-700`}>{group.name}</span>}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          <button onClick={() => deleteTask(task.id)} className="text-red-400 hover:text-red-600 p-2">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </svg>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          </button>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                )
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        })}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                {tasks.length === 0 && <p className="text-center text-gray-400 mt-10">No tasks yet. Add one above!</p>}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            );
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
+    if (!taskText.trim() || !selectedGroup) return;
+
+    addTask(taskText.trim(), selectedGroup);
+    setTaskText("");
+  };
+
+  return (
+    <main className="min-h-screen p-6">
+      <div className="mx-auto max-w-5xl">
+
+        {/* Dashboard Header */}
+        <h1 className="mb-2 text-3xl font-bold">
+          Welcome to Your To-Do List!
+        </h1>
+
+        <p className="mb-6 text-gray-500">
+          Organize your tasks and stay productive.
+        </p>
+
+        {/* Dashboard Statistics */}
+        <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+
+          <div className="rounded-2xl bg-white p-5 shadow-soft">
+            <p className="text-gray-500">Total Tasks</p>
+            <h2 className="text-3xl font-bold">
+              {tasks.length}
+            </h2>
+          </div>
+
+          <div className="rounded-2xl bg-white p-5 shadow-soft">
+            <p className="text-gray-500">Completed</p>
+            <h2 className="text-3xl font-bold text-green-600">
+              {completed}
+            </h2>
+          </div>
+
+          <div className="rounded-2xl bg-white p-5 shadow-soft">
+            <p className="text-gray-500">Pending</p>
+            <h2 className="text-3xl font-bold text-orange-500">
+              {pending}
+            </h2>
+          </div>
+
+        </div>
+
+        {/* Add Task */}
+        <section className="mb-8 rounded-2xl bg-white p-5 shadow-soft">
+          <h2 className="mb-4 text-xl font-bold">
+            Add a Task
+          </h2>
+
+          <form
+            onSubmit={handleAddTask}
+            className="flex flex-col gap-3 sm:flex-row"
+          >
+            <input
+              value={taskText}
+              onChange={(e) => setTaskText(e.target.value)}
+              placeholder="Enter a task..."
+              className="min-w-0 flex-1 rounded-xl border p-3"
+            />
+
+            <select
+              value={selectedGroup}
+              onChange={(e) => setSelectedGroup(e.target.value)}
+              className="rounded-xl border p-3"
+            >
+              {groups.map((group) => (
+                <option key={group.id} value={group.id}>
+                  {group.name}
+                </option>
+              ))}
+            </select>
+
+            <button
+              type="submit"
+              className="rounded-xl bg-purple-600 px-5 py-3 text-white"
+            >
+              Add Task
+            </button>
+          </form>
+        </section>
+
+        {/* Recent Tasks */}
+        <section className="mb-8 rounded-2xl bg-white p-5 shadow-soft">
+          <h2 className="mb-4 text-xl font-bold">
+            Recent Tasks
+          </h2>
+
+          {tasks.length === 0 ? (
+            <p className="text-gray-500">
+              No tasks yet. Add your first task!
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {tasks.map((task) => (
+                <div
+                  key={task.id}
+                  className="flex flex-wrap items-center justify-between gap-3 border-b pb-3"
+                >
+                  <span
+                    className={
+                      task.completed
+                        ? "text-gray-400 line-through"
+                        : ""
+                    }
+                  >
+                    {task.text}
+                  </span>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => toggleTask(task.id)}
+                      className="rounded-lg bg-green-100 px-3 py-2 text-sm"
+                    >
+                      {task.completed ? "Not Done" : "Done"}
+                    </button>
+
+                    <button
+                      onClick={() => deleteTask(task.id)}
+                      className="rounded-lg bg-red-100 px-3 py-2 text-sm"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* API User Information */}
+        <UserInfoCard />
+
+      </div>
+    </main>
+  );
+}
+
+export default Home;
