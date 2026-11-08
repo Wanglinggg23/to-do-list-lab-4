@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import useTaskStore from "../store/taskStore";
-import UserInfoCard from "../components/UserInfoCard";
 
 function Home() {
   const [taskText, setTaskText] = useState("");
@@ -191,10 +190,6 @@ function Home() {
             </div>
           )}
         </section>
-
-        {/* API User Information */}
-        <UserInfoCard />
-
       </div>
     </main>
   );

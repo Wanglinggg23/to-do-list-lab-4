@@ -1,19 +1,21 @@
-import React from "react";
 import UserInfoCard from "../components/UserInfoCard";
 
-export default function Users() {
+function Users() {
   return (
-    <div className="space-y-6">
-      <header className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">
+    <main className="min-h-screen p-6">
+      <div className="mx-auto max-w-5xl">
+        <h1 className="mb-2 text-3xl font-bold">
           User Information
         </h1>
-        <p className="text-gray-500 mt-2">
-          Sample information retrieved from DummyJSON API.
-        </p>
-      </header>
 
-      <UserInfoCard />
-    </div>
+        <p className="mb-6 text-gray-500">
+          Sample user information retrieved from the DummyJSON API.
+        </p>
+
+        <UserInfoCard />
+      </div>
+    </main>
   );
 }
+
+export default Users;
