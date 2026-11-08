@@ -1,4 +1,6 @@
+
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import useTaskStore from "../store/taskStore";
 import UserInfoCard from "../components/UserInfoCard";
 
@@ -62,6 +64,47 @@ function Home() {
           </div>
 
         </div>
+
+        {/* Clickable Categories */}
+        <section className="mb-8 rounded-2xl bg-white p-5 shadow-soft">
+          <h2 className="mb-4 text-xl font-bold">
+            My Categories
+          </h2>
+
+          {groups.length === 0 ? (
+            <p className="text-gray-500">
+              No categories available. Create a group first.
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
+              {groups.map((group) => {
+                const groupTasks = tasks.filter(
+                  (task) => String(task.groupId) === String(group.id)
+                );
+
+                return (
+                  <Link
+                    key={group.id}
+                    to={`/groups/${group.id}`}
+                    className="rounded-xl border p-4 transition hover:-translate-y-1 hover:shadow-md"
+                  >
+                    <h3 className="font-bold text-gray-800">
+                      {group.name}
+                    </h3>
+
+                    <p className="mt-2 text-sm text-gray-500">
+                      {groupTasks.length} task(s)
+                    </p>
+
+                    <p className="mt-3 text-sm font-medium text-purple-600">
+                      View Category →
+                    </p>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+        </section>
 
         {/* Add Task */}
         <section className="mb-8 rounded-2xl bg-white p-5 shadow-soft">
